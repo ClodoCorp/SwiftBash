@@ -12,13 +12,6 @@ if [ -z "$DIR" -o -z "$CNT" ]; then
     exit 1
 fi
 
-DEBUG=0                                         # show some debugging messages
-SUPPRESS_OUT=0                                  # suppress script output
-
-TIME=$(date +%Y-%m-%d_%H-%M)
-DATE=$(date +%Y-%m-%d)
-SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
-
 AUTH_DAT="$(curl -I -s -H "X-Auth-User: $STORAGE_USER" -H "X-Auth-Key: $STORAGE_KEY" $AUTH_URL)"
 
 if [ -z "$AUTH_DAT" ]; then
