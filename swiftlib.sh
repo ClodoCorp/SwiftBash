@@ -10,13 +10,20 @@ SBFL_VERSION="0.0.0"
 # and override the variables to change their value.
 #
 
+################################################################################
+# Private functions. Don't call then from outside
+################################################################################
 AUTH_URL_CLODO="http://testapi.clodo.ru/v1"
 
-init() {
+function init() {
     DEBUG=no
     AUTH_URL=$AUTH_URL_CLODO
     
 }
+
+################################################################################
+# Public Functions
+################################################################################
 
 #
 # Authenticates in $AUTH_URL and updates API_URL ans API_TOKEN
@@ -54,6 +61,19 @@ function authenticate() {
     return 0
 }
 
+#
+# Get Storage usage
+#
+function get_acct_bytes_used() {
+    curl -I -s -X HEAD -H "X-Auth-Token: $API_TOKEN" $API_URL |  grep "X-Account-Bytes-Used:" | cut -f2 -d" "
+}
+
+#
+# Get Storage usage
+#
+function get_acct_cont_count() {
+    curl -I -s -X HEAD -H "X-Auth-Token: $API_TOKEN" $API_URL |  grep "X-Account-Container-Count:" | cut -f2 -d" "
+}
 
 init
 

@@ -1,9 +1,14 @@
 #!/bin/bash
 . swiftlib.sh
+. ~/.swiftbash.sh
 
-STORAGE_USER='storage_6681_1'
-STORAGE_KEY='857a63980c5b3640f3053cdb80156b7e'
-STORAGE_KEY='ad4f23431fbd68512cd0d8929443baaa'
+if [ -z "$STORAGE_USER" ]; then
+    STORAGE_USER='storage_6681_1'
+fi
+
+if [ -z "$STORAGE_KEY" ]; then
+STORAGE_KEY='ad4f23431fbd68512cd0s8929443baaa'
+fi
 
 DIR="$1"
 CNT="$2"
@@ -12,7 +17,6 @@ if [ -z "$DIR" -o -z "$CNT" ]; then
     echo "Usage: $0 <local dir> <remote cont>"
     exit 1
 fi
-
 
 authenticate $STORAGE_USER $STORAGE_KEY
 
