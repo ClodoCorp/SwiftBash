@@ -152,6 +152,75 @@ function delete_cont() {
     fi
 }
 
+#
+# Create or update object
+#
+function put_obj() {
+    cont="$1"
+    if [ -z "$1" ]; then
+        return
+    fi
+    
+    obj="$2"
+    if [ -z "$2" ]; then
+        return
+    fi
+
+    file="$3"
+    if [ -z "$3" ]; then
+        return
+    fi
+    
+    RESP=$(curl -0 -I -s -X PUT -T $file -H "X-Storage-Token: $API_TOKEN" ${API_URL}/${cont}/${obj}) 
+
+    if echo $RESP | grep -o "201" > /dev/null ; then
+        return 0
+    else
+        return -2
+    fi
+}
+
+#
+# Copy object
+#
+function copy_obj() {
+    src="$1"
+    if [ -z "$1" ]; then
+        return
+    fi
+    
+    dest="$2"
+    if [ -z "$2" ]; then
+        return
+    fi
+
+    RESP=$(curl -0 -s -X PUT -H "X-Storage-Token: $API_TOKEN" \
+        -H "X-Copy-From: $src" \
+        -H "Content-Length: 0" \
+        ${API_URL}/${dest}) 
+
+    if echo $RESP | grep -o "201" > /dev/null ; then
+        return 0
+    else
+        return -2
+    fi
+}
+
+#
+# Delete object
+#
+function delete_obj() {
+    obj="$1"
+    if [ -z "$1" ]; then
+        return
+    fi
+    RESP=$(curl -s -X DELETE -D - -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$obj)
+    if echo $RESP | grep -E "201|204" > /dev/null ; then
+        return 0
+    else
+        return -2
+    fi
+}
 
 
 init
