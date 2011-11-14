@@ -41,4 +41,5 @@ do
     fi
 done
     
+rm -f $tmpfile
 
