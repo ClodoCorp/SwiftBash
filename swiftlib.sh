@@ -14,6 +14,8 @@ SBFL_VERSION="0.0.1"
 ################################################################################
 AUTH_URL_CLODO="http://testapi.clodo.ru/v1"
 
+LIST_LIMIT=10000
+
 function init() {
     DEBUG=no
     AUTH_URL=$AUTH_URL_CLODO
@@ -103,7 +105,6 @@ function get_cont_meta() {
     curl -I -s -X HEAD -H "X-Auth-Token: $API_TOKEN" $API_URL/$cont |  grep "X-"
 }
 
-
 #
 # List container objects
 #
@@ -118,6 +119,41 @@ function get_obj_list() {
         suffix="?format=$2"
     fi
     curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont${suffix}
+}
+
+#
+# List all container's object and output to file
+#
+function long_obj_list_2file() {
+    cont="$1"
+    if [ -z "$cont" ]; then
+        return
+    fi
+    
+    prefix="$2"   
+    if [ -z "$prefix" ]; then
+        return
+    fi
+
+    file="$3"
+    if [ -f $file ]; then
+        echo -ne "" > $file
+    fi
+
+    limit=$LIST_LIMIT
+    marker=""
+
+    while [ $limit -gt 0 ]
+    do
+        LIST=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont${suffix}\?limit=${limit}\&marker=${marker}`
+        lcnt=`echo "$LIST" | wc -l`
+        marker=`echo "$LIST" |  tail -n1`
+        if [ $lcnt -lt $limit ]; then
+            limit=0
+        fi
+        echo "$LIST" >> $file
+    done
+
 }
 
 #
@@ -221,7 +257,6 @@ function delete_obj() {
         return -2
     fi
 }
-
 
 init
 
