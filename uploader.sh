@@ -30,34 +30,14 @@ echo "Creating directories..."
 for dir in `find $DIR -type d`
 do
     FNM=`echo $dir | sed "s%$DIR%%"`
-    echo -ne "$API_URL/$CNT$FNM ..."
-    curl -0 -f -X PUT -s -H "X-Storage-Token: $API_TOKEN" -H "Content-Type: application/directory" -H "Content-Length: 0" $API_URL/$CNT$FNM > /dev/null
-    RET=$?
-    if [ "$RET" -eq 22 ]; then
-        authenticate $STORAGE_USER $STORAGE_KEY
-        curl -0 -X PUT -s -H "X-Storage-Token: $API_TOKEN" -H "Content-Type: application/directory" -H "Content-Length: 0" $API_URL/$CNT$FNM > /dev/null    
-    fi
-    if [ "$RET" -eq 0 ]; then
-        echo -ne "OK\n"
-    else
-        echo -ne "ERROR\n"
-    fi
+    echo "$API_URL/$CNT/$FNM"
+    create_dir "$CNT" "$FNM"
 done
 
 echo "Uploading files..."
 for file in `find $DIR -type f`
 do
     FNM=`echo $file | sed "s%$DIR%%"`
-    echo -ne "$API_URL/$CNT$FNM ..."
-    curl -0 -f -I -s -X PUT -T $file -H "X-Storage-Token: $API_TOKEN" $API_URL/$CNT$FNM > /dev/null
-    RET=$?
-    if [ "$RET" -eq "22" ]; then
-        authenticate $STORAGE_USER $STORAGE_KEY
-        curl -0 -I -s -X PUT -T $file -H "X-Storage-Token: $API_TOKEN" $API_URL/$CNT$FNM > /dev/null
-    fi
-    if [ "$RET" -eq 0 ]; then
-        echo -ne "OK\n"
-    else
-        echo -ne "ERROR\n"
-    fi
+    echo "$API_URL/$CNT/$FNM"
+    put_obj $CNT $FNM $file
 done

@@ -98,7 +98,7 @@ function get_cont_list() {
 #
 function get_cont_meta() {
     cont="$1"
-    if [ -z "$1" ]; then
+    if [ -z "$cont" ]; then
         return
     fi
 
@@ -110,7 +110,7 @@ function get_cont_meta() {
 #
 function get_obj_list() {
     cont="$1"
-    if [ -z "$1" ]; then
+    if [ -z "$cont" ]; then
         return
     fi
     
@@ -153,7 +153,6 @@ function long_obj_list_2file() {
         fi
         echo "$LIST" >> $file
     done
-
 }
 
 #
@@ -161,7 +160,7 @@ function long_obj_list_2file() {
 #
 function create_cont() {
     cont="$1"
-    if [ -z "$1" ]; then
+    if [ -z "$cont" ]; then
         return
     fi
     RESP=$(curl -s -X PUT -D - -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont)
@@ -177,7 +176,7 @@ function create_cont() {
 #
 function delete_cont() {
     cont="$1"
-    if [ -z "$1" ]; then
+    if [ -z "$cont" ]; then
         return
     fi
     RESP=$(curl -s -X DELETE -D - -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont)
@@ -193,17 +192,17 @@ function delete_cont() {
 #
 function put_obj() {
     cont="$1"
-    if [ -z "$1" ]; then
+    if [ -z "$cont" ]; then
         return
     fi
     
     obj="$2"
-    if [ -z "$2" ]; then
+    if [ -z "$obj" ]; then
         return
     fi
 
     file="$3"
-    if [ -z "$3" ]; then
+    if [ -z "$file" ]; then
         return
     fi
     
@@ -221,12 +220,12 @@ function put_obj() {
 #
 function copy_obj() {
     src="$1"
-    if [ -z "$1" ]; then
+    if [ -z "$src" ]; then
         return
     fi
     
     dest="$2"
-    if [ -z "$2" ]; then
+    if [ -z "$dest" ]; then
         return
     fi
 
@@ -247,7 +246,7 @@ function copy_obj() {
 #
 function delete_obj() {
     obj="$1"
-    if [ -z "$1" ]; then
+    if [ -z "$obj" ]; then
         return
     fi
     RESP=$(curl -s -X DELETE -D - -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$obj)
@@ -256,6 +255,29 @@ function delete_obj() {
     else
         return -2
     fi
+}
+
+#
+# Create pseudo-directory object
+#
+function create_dir() {
+    cont="$1"
+    if [ -z "$cont" ]; then
+        return
+    fi
+
+    obj="$2"
+    if [ -z "$obj" ]; then
+        return
+    fi
+    RESP=$(curl -0 -f -X PUT -s -H "X-Storage-Token: $API_TOKEN" -H "Content-Type: application/directory" -H "Content-Length: 0" $API_URL/${cont}/${obj})
+
+    if echo $RESP | grep -o "201" > /dev/null ; then
+        return 0
+    else
+        return -2
+    fi
+
 }
 
 init
