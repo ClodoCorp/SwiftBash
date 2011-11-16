@@ -30,14 +30,23 @@ echo "Creating directories..."
 for dir in `find $DIR -type d`
 do
     FNM=`echo $dir | sed "s%$DIR%%"`
-    echo "$API_URL/$CNT/$FNM"
-    create_dir "$CNT" "$FNM"
+    echo -ne "$CNT/$FNM ... "
+    if create_dir "$CNT" "$FNM"; then
+        echo -ne "OK\n"
+    else
+        echo -ne "FAIL\n"
+    fi
 done
 
 echo "Uploading files..."
 for file in `find $DIR -type f`
 do
     FNM=`echo $file | sed "s%$DIR%%"`
-    echo "$API_URL/$CNT/$FNM"
-    put_obj $CNT $FNM $file
+    echo -ne "$CNT/$FNM ... "
+    if put_obj $CNT $FNM $file; then
+        echo -ne "OK\n"
+    else
+        echo -ne "FAIL\n"
+    fi
+
 done
