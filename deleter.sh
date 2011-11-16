@@ -27,6 +27,11 @@ fi
 
 tmpfile=`mktemp`
 
+if [ ! -f $tmpfile ]; then
+    touch /tmp/tmp.list$cont
+    tmpfile="/tmp/tmp.list$cont"
+fi
+
 echo -ne "Getting container filelist "
 long_obj_list_2file $CNT " " "$tmpfile"
 echo -ne "done\n"
