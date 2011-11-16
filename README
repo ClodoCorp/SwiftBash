@@ -1,0 +1,71 @@
+======================================================================
+SwiftBash: bash interface to OpenStack Swift
+======================================================================
+
+DESCRIPTION
+===========
+SwiftBash is a bash functions library which provides access to Clodo
+Cloud Storage (http://www.clodo.ru/cloud-storage/review/) and any
+other OpenStack Swift (http://swift.openstack.org/) compatible
+storage, like Rackspace Cloud Files.
+
+This library is not intended to be the full API implementation but a
+set of handy functions for everyday use in scripts.
+
+REQUIREMENTS
+============
+curl (tested on 7.21.0)
+mktemp (any)
+bash (tested on 4.1)
+grep
+sed
+cut
+
+Operating Systems
+=================
+Should work on any unix-like OS with tools listed in requirements.
+I use it on Debian GNU/Linux stable (6.0) and testing distributions.
+
+INSTALL
+=======
+Just put it where you can source it from later.
+
+USAGE
+======
+Helper scripts:
+Both uploader.sh and deleter.sh require username and secret key to
+access the storage in  $STORAGE_USER and $STORAGE_KEY variables
+respectively. You may create file ~/.swiftbash.sh and declare them
+there like this:
+
+realloc@motoko:~/projects/SwiftBash$ cat ~/.swiftbash.sh 
+STORAGE_USER='storage_6681_1'
+STORAGE_KEY='62027a8e6n29ft3b00d586fb7865f22b'
+
+Make sure access permissions on that file require your security needs.
+Helper scripts will source that file and use provided credentials to
+access your cloud storage.
+
+Run test.sh to make sure that everything works.
+
+
+The library:
+Please can read helper scripts ans use them as example.
+
+
+SUPPORT
+=======
+This tool is not officially supported by clodo.ru, but we will be
+happy to help you as much as possible. 
+
+Please report bugs and feature requests in the github issue
+tracker:
+http://github.com/ClodoCorp/SwiftBash/issues
+
+Author
+======
+Stanislav Bogatyrev <realloc@realloc.spb.ru>
+
+Contributors
+============
+
