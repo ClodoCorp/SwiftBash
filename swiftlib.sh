@@ -16,10 +16,8 @@ SBFL_VERSION="0.0.2"
 # * Meta-data operations should be implemented
 # * Add Debug output if $DEBUG is 'yes'
 # * Move auth check to common function
-# * Add status return function printing ...OK, ...ERR, etc
 # * Add 500 errors processing
 # * Write smoke tests =)
-#
 #
 ################################################################################
 
@@ -37,6 +35,14 @@ function init() {
 
 ################################################################################
 # Public Functions
+#
+# return codes:
+# 0 - ok
+# 1 - internal problem
+# 2 - not found
+# 3 - wrong argument
+# 4 - external problems
+#
 ################################################################################
 
 #
@@ -52,25 +58,25 @@ function authenticate() {
     
     if [ -z "$AUTH_DAT" ]; then
         echo "ERROR: Can't find Cloud Storage server"
-        return -2
+        return 2
     fi
 
     ERR=`echo "$AUTH_DAT" | grep 'Unauthorized'`
     if [ $? -eq 0 ]; then
         echo "ERROR: Unauthorized!"
-        return -3
+        return 4
     fi
 
     API_URL=`echo "$AUTH_DAT" | grep 'X-Storage-Url'|sed 's/X-Storage-Url: \(.*\)\r/\1/'`
     if [ -z "$API_URL" ]; then
         echo "ERROR: Error getting API URL"
-        return -2
+        return 4
     fi
 
     API_TOKEN=`echo "$AUTH_DAT" | grep 'X-Storage-Token' | sed 's/X-Storage-Token: \(.*\)\r/\1/'`
     if [ -z "$API_TOKEN" ]; then
         echo "ERROR: Error getting API TOKEN"
-        return -2
+        return 4
     fi
     return 0
 }
@@ -113,7 +119,7 @@ function get_cont_list() {
 function get_cont_meta() {
     cont="$1"
     if [ -z "$cont" ]; then
-        return
+        return 3
     fi
 
     curl -I -s -X HEAD -H "X-Auth-Token: $API_TOKEN" $API_URL/$cont |  grep "X-"
@@ -125,7 +131,7 @@ function get_cont_meta() {
 function get_obj_count() {
     cont="$1"
     if [ -z "$cont" ]; then
-        return
+        return 3
     fi
 
     get_cont_meta $cont | grep -o -E "X-Container-Object-Count: [0-9]+" | cut -f2 -d" "
@@ -137,7 +143,7 @@ function get_obj_count() {
 function get_obj_list() {
     cont="$1"
     if [ -z "$cont" ]; then
-        return
+        return 3
     fi
     
     suffix=""
@@ -153,15 +159,19 @@ function get_obj_list() {
 function long_obj_list_2file() {
     cont="$1"
     if [ -z "$cont" ]; then
-        return
+        return 3
     fi
     
     prefix="$2"   
     if [ -z "$prefix" ]; then
-        return
+        return 3
     fi
 
     file="$3"
+    if [ -z "$file" ]; then
+        return 3
+    fi
+
     if [ -f $file ]; then
         echo -ne "" > $file
     fi
@@ -187,7 +197,7 @@ function long_obj_list_2file() {
 function create_cont() {
     cont="$1"
     if [ -z "$cont" ]; then
-        return
+        return 2
     fi
     RESP=$(curl -v -X PUT -D - -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont 2>&1)
  
@@ -198,9 +208,9 @@ function create_cont() {
         create_cont "$cont"
         return $?
     elif echo $RESP | grep -E "< HTTP/1.. 404" > /dev/null ; then
-        return -2
+        return 2
     else
-        return -1
+        return 1
     fi
 }
 
@@ -221,9 +231,9 @@ function delete_cont() {
         delete_cont "$cont"
         return $?
     elif echo $RESP | grep -E "< HTTP/1.. 404" > /dev/null ; then
-        return -2
+        return 2
     else
-        return -1
+        return 1
     fi
 }
 
@@ -233,17 +243,21 @@ function delete_cont() {
 function put_obj() {
     cont="$1"
     if [ -z "$cont" ]; then
-        return
+        return 3
     fi
     
     obj="$2"
     if [ -z "$obj" ]; then
-        return
+        return 3
     fi
 
     file="$3"
     if [ -z "$file" ]; then
-        return
+        return 3
+    fi
+
+    if [ ! -f "$file" ]; then
+        return 3
     fi
     
     RESP=$(curl -0 -I -v -X PUT -T $file -H "X-Storage-Token: $API_TOKEN" ${API_URL}/${cont}/${obj} 2>&1) 
@@ -255,9 +269,9 @@ function put_obj() {
         put_obj "$cont" "$obj" "$file"
         return $?
     elif echo $RESP | grep -E "< HTTP/1.. 404" > /dev/null ; then
-        return -2
+        return 2
     else
-        return -1
+        return 1
     fi
 }
 
@@ -267,12 +281,12 @@ function put_obj() {
 function copy_obj() {
     src="$1"
     if [ -z "$src" ]; then
-        return
+        return 3
     fi
     
     dest="$2"
     if [ -z "$dest" ]; then
-        return
+        return 3
     fi
 
     RESP=$(curl -0 -v -X PUT -H "X-Storage-Token: $API_TOKEN" \
@@ -287,9 +301,9 @@ function copy_obj() {
         copy_obj "$src" "$dest"
         return $?
     elif echo $RESP | grep -E "< HTTP/1.. 404" > /dev/null ; then
-        return -2
+        return 2
     else
-        return -1
+        return 1
     fi
 }
 
@@ -309,9 +323,9 @@ function delete_obj() {
         delete_obj "$obj"
         return $?
     elif echo $RESP | grep -E "< HTTP/1.. 404" > /dev/null ; then
-        return -2
+        return 2
     else
-        return -1
+        return 1
     fi
 }
 
@@ -321,12 +335,12 @@ function delete_obj() {
 function create_dir() {
     cont="$1"
     if [ -z "$cont" ]; then
-        return
+        return 3
     fi
 
     obj="$2"
     if [ -z "$obj" ]; then
-        return
+        return 3
     fi
     RESP=$(curl -0 -f -X PUT -v -H "X-Storage-Token: $API_TOKEN" -H "Content-Type: application/directory" -H "Content-Length: 0" $API_URL/${cont}/${obj} 2>&1)
 
@@ -337,9 +351,9 @@ function create_dir() {
         create_dir "$cont" "$obj"
         return $?
     elif echo $RESP | grep -E "< HTTP/1.. 404" > /dev/null ; then
-        return -2
+        return 2
     else
-        return -1
+        return 1
     fi
 }
 

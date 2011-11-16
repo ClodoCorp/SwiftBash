@@ -14,7 +14,7 @@ CNT="$1"
 MSK="$2"
 
 if [ -z "$MSK" -o -z "$CNT" ]; then
-    echo "Usage: $0 <container> <mask>"
+    echo "Usage: $0 <container> <mask> [-d]"
     exit 1
 fi
 
@@ -39,11 +39,18 @@ echo -ne "done\n"
 for objct in `grep -e "^${MSK}" $file`
 do
     echo -ne "delete ${CNT}/${objct} "
+    
+    if [ "$3" == "-d" ]; then
+        echo -ne " TEST\n"
+        continue
+    fi
+
     if delete_obj "${CNT}/${objct}" ; then
         echo -ne "OK\n"
     else
         echo -ne "FAIL\n"
     fi
+
 done
     
 rm -f $tmpfile
