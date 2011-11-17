@@ -2,6 +2,8 @@
 . swiftlib.sh
 . ~/.swiftbash.sh
 
+DEBUG=yes
+
 if [ -z "$STORAGE_USER" ]; then
     STORAGE_USER='storage_6681_1'
 fi
@@ -28,15 +30,17 @@ fi
 tmpfile=`mktemp`
 
 if [ ! -f $tmpfile ]; then
-    touch /tmp/tmp.list$cont
-    tmpfile="/tmp/tmp.list$cont"
+    touch /tmp/tmp.list${CNT}
+    tmpfile="/tmp/tmp.list${CNT}"
 fi
+
+debug "Using temporary file $tmpfile"
 
 echo -ne "Getting container filelist "
 long_obj_list_2file $CNT " " "$tmpfile"
 echo -ne "done\n"
 
-for objct in `grep -e "^${MSK}" $file`
+for objct in `grep -e "^${MSK}" $tmpfile`
 do
     echo -ne "delete ${CNT}/${objct} "
     
