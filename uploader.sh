@@ -2,7 +2,7 @@
 . swiftlib.sh
 . ~/.swiftbash.sh
 
-DEBUG=yes
+DEBUG=no
 
 if [ -z "$STORAGE_USER" ]; then
     STORAGE_USER='storage_6681_1'
