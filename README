@@ -42,11 +42,23 @@ realloc@motoko:~/projects/SwiftBash$ cat ~/.swiftbash.sh
 STORAGE_USER='storage_6681_1'
 STORAGE_KEY='62027a8e6n29ft3b00d586fb7865f22b'
 
-Make sure access permissions on that file require your security needs.
+Make sure access permissions on that file meet your security needs.
 Helper scripts will source that file and use provided credentials to
 access your cloud storage.
 
 Run test.sh to make sure that everything works.
+
+realloc@motoko:~/projects/clodo/SwiftBash$ ./test.sh 2>test.log
++ AUTH Passed
++ ACC_meta Passed
++ ACC_cont_list Passed
++ CONT_meta Passed
++ CONT_obj_list Passed
++ CONT_create Passed
++ OBJ_put Passed
++ OBJ_get Passed
++ OBJ_delete Passed
++ CONT_delete Passed
 
 
 The library:

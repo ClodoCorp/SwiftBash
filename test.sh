@@ -4,9 +4,6 @@
 
 DEBUG=yes
 
-echo "User: $STORAGE_USER"
-echo "Key: $STORAGE_KEY"
-
 if authenticate $STORAGE_USER $STORAGE_KEY ; then
     echo "+ AUTH Passed"
 else
@@ -46,7 +43,7 @@ fi
 obj_count=$(get_obj_count $CONT)
 OBJLIST=$(get_obj_list $CONT)
 obj_num=$(echo "$OBJLIST" | wc -l)
-if [ -z "$OBJLIST"]; then
+if [ -z "$OBJLIST" ]; then
     obj_num=0
 fi
 
