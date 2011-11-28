@@ -11,11 +11,9 @@ SBFL_VERSION="0.0.3"
 
 ################################################################################
 # TODO:
-# - Local MUST be local!
 # - Space in filename brakes it all
 # - Reauth cycle with wrong token may never end
 # - 409 / Conflict
-# * Huge file uploads part by part should be implemented
 # * Meta-data operations should be implemented
 # * Add Debug output if $DEBUG is 'yes'
 # * Move auth check to common function
@@ -125,6 +123,7 @@ function get_acct_meta() {
 
 #
 # List account containers
+# Args: Output format // json|xml 
 #
 function get_cont_list() {
     local suffix=""
@@ -137,6 +136,7 @@ function get_cont_list() {
 
 #
 # Get Container MetaData 
+# Args: Container
 #
 function get_cont_meta() {
     local cont="$1"
@@ -151,6 +151,7 @@ function get_cont_meta() {
 
 #
 # Get container's object count
+# Args: Container
 #
 function get_obj_count() {
     local cont="$1"
@@ -164,6 +165,8 @@ function get_obj_count() {
 
 #
 # List container objects
+# Args: Container
+#       Output format // json|xml 
 #
 function get_obj_list() {
     local cont="$1"
@@ -182,6 +185,9 @@ function get_obj_list() {
 
 #
 # List all container's object and output to file
+# Args: Container
+#       Search Prefix
+#       Output file
 #
 function long_obj_list_2file() {
     local cont="$1"
@@ -207,7 +213,7 @@ function long_obj_list_2file() {
 
     while [ "$limit" -gt 0 ]
     do
-        local list=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/"$cont"/${prefix}\?limit=${limit}\&marker=${marker}`
+        local list=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont/${prefix}\?limit=${limit}\&marker=${marker}`
         local lcnt=`echo "$list" | wc -l`
         marker=`echo "$list" |  tail -n1`
         if [ "$lcnt" -lt "$limit" ]; then
@@ -219,6 +225,7 @@ function long_obj_list_2file() {
 
 #
 # Create container
+# Args: Container
 #
 function create_cont() {
     local cont="$1"
@@ -244,7 +251,8 @@ function create_cont() {
 }
 
 #
-# Delete container
+# Delete containe
+# Args: Container
 #
 function delete_cont() {
     local cont="$1"
@@ -271,6 +279,9 @@ function delete_cont() {
 
 #
 # Create or update object
+# Args: Container
+#       Object name
+#       Input file
 #
 function put_obj() {
     local cont="$1"
@@ -315,6 +326,9 @@ function put_obj() {
 
 #
 # Create or update object's Manifest
+# Args: Container
+#       Object name
+#       PIN
 #
 function put_obj_manifest() {
     local cont="$1"
@@ -358,6 +372,12 @@ function put_obj_manifest() {
 
 #
 # Upload object's segment
+# Args: Container
+#       Object name
+#       Input file
+#       PIN
+#       Start offset (bytes)
+#       Segment size (bytes)
 #
 function put_obj_segment() {
     local cont="$1"
@@ -423,6 +443,10 @@ function put_obj_segment() {
 
 #
 # Create or update large object
+# Args: Container
+#       Object name
+#       Input file
+#       Segment size
 #
 function put_obj_large() {
     local cont="$1"
@@ -495,6 +519,8 @@ function put_obj_large() {
 
 #
 # Copy object
+# Args: Source Object name
+#       Destination Object name
 #
 function copy_obj() {
     local src="$1"
@@ -531,6 +557,7 @@ function copy_obj() {
 
 #
 # Delete object
+# Args: Full Object name (container + object)
 #
 function delete_obj() {
     local obj="$1"
@@ -557,6 +584,8 @@ function delete_obj() {
 
 #
 # Create pseudo-directory object
+# Args: Container
+#       Object name
 #
 function create_dir() {
     local cont="$1"

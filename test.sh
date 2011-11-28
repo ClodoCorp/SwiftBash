@@ -70,6 +70,7 @@ if put_obj "$UCONT" "$OBJ" "$tmpfile"; then
 else
     echo "+ OBJ_put Failed"
 fi
+rm $tmpfile
 
 OBJ_CONT=`curl -s -H "X-Storage-Token: $API_TOKEN" $API_URL/"${UCONT}"/"${OBJ}"`
 if [ "$OBJ_CONT" == "$OBJ_TCONT" ]; then

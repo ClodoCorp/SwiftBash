@@ -37,7 +37,7 @@ fi
 debug "Using temporary file $tmpfile"
 
 echo -ne "Getting container filelist "
-long_obj_list_2file $CNT " " "$tmpfile"
+long_obj_list_2file $CNT "" "$tmpfile"
 echo -ne "done\n"
 
 for objct in `grep -e "^${MSK}" $tmpfile`

@@ -32,7 +32,6 @@ else
 fi
 
 echo "Creating directories from $DIR..."
-
 for dir in `find $DIR -type d | sed "s%$DIR%%" | sed "s%^/%%"`
 do
     echo -ne "$CNT/$dir ... "
