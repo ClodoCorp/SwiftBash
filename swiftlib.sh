@@ -168,7 +168,6 @@ get_obj_count() {
 # List container objects
 # Args: Container
 #       Output format // json|xml 
-#       Search Prefix
 #
 get_obj_list() {
     local cont="$1"
@@ -182,16 +181,13 @@ get_obj_list() {
         suffix="?format=$2"
     fi
 
-    local prefix="$3" 
-
-    curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/"$cont"/${prefix}${suffix}
+    curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont${suffix}
     return $?
 }
 
 #
 # List all container's objects and output to file
 # Args: Container
-#       Search Prefix
 #       Output file
 #
 obj_list_long_2file() {
@@ -201,8 +197,6 @@ obj_list_long_2file() {
         return 3
     fi
     
-    local prefix="$2" 
-
     local file="$3"
     if [ -z "$file" ]; then
         error "File name is empty!"
@@ -218,7 +212,7 @@ obj_list_long_2file() {
 
     while [ "$limit" -gt 0 ]
     do
-        local list=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont/${prefix}\?limit=${limit}\&marker=${marker}`
+        local list=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont\?limit=${limit}\&marker=${marker}`
         local lcnt=`echo "$list" | wc -l`
         marker=`echo "$list" |  tail -n1`
         if [ "$lcnt" -lt "$limit" ]; then
@@ -231,7 +225,6 @@ obj_list_long_2file() {
 #
 # List all container's objects
 # Args: Container
-#       Search Prefix
 #
 get_obj_list_long() {
     local cont="$1"
@@ -240,14 +233,12 @@ get_obj_list_long() {
         return 3
     fi
 
-    local prefix="$2" 
-
     local limit=$LIST_LIMIT
     local marker=""
 
     while [ "$limit" -gt 0 ]
     do
-        local list=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont/${prefix}\?limit=${limit}\&marker=${marker}`
+        local list=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont\?limit=${limit}\&marker=${marker}`
         local lcnt=`echo "$list" | wc -l`
         marker=`echo "$list" |  tail -n1`
         if [ "$lcnt" -lt "$limit" ]; then
