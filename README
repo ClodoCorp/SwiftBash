@@ -60,10 +60,8 @@ realloc@motoko:~/projects/clodo/SwiftBash$ ./test.sh 2>test.log
 + OBJ_delete Passed
 + CONT_delete Passed
 
-
 The library:
-Please can read helper scripts ans use them as example.
-
+Please read helper scripts ans use them as example.
 
 SUPPORT
 =======
