@@ -12,6 +12,7 @@ else
 fi
 
 acc_meta=$(get_acct_meta)
+debug "$acc_meta"
 if echo "$acc_meta" | grep "X-Account-Object-Count:" > /dev/null ; then
     echo "+ ACC_meta Passed"
 else
@@ -42,16 +43,32 @@ fi
 
 obj_count=$(get_obj_count $CONT)
 OBJLIST=$(get_obj_list $CONT)
-obj_num=$(echo "$OBJLIST" | wc -l)
-if [ -z "$OBJLIST" ]; then
-    obj_num=0
-fi
+OBJLISTL=$(get_obj_list_long $CONT)
+obj_num=$(echo -ne "$OBJLIST" | wc -l)
+obj_numl=$(echo -ne "$OBJLISTL" | wc -l)
 
-if [ "$obj_num" -eq "$obj_count" ]; then
+if [[ "$obj_num" -eq "$obj_count" || "$obj_num" -eq "$LIST_LIMIT" ]]; then
     echo "+ CONT_obj_list Passed"
 else
     echo "+ CONT_obj_list Failed"
 fi
+
+if [ "$obj_numl" -eq "$obj_count" ]; then
+    echo "+ CONT_obj_list_long Passed"
+else
+    echo "+ CONT_obj_list_long Failed"
+fi
+
+tmpfile=`mktemp`
+obj_list_long_2file "$CONT" "" "$tmpfile"
+obj_numf=$(wc -l $tmpfile | cut -f1 -d" ")
+
+if [ "$obj_numf" -eq "$obj_count" ]; then
+    echo "+ CONT_obj_list_long_file Passed"
+else
+    echo "+ CONT_obj_list_long_file Failed"
+fi
+rm "$tmpfile"
 
 UCONT="testAAA"
 if create_cont "$UCONT" ; then

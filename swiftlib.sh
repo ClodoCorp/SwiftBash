@@ -31,18 +31,19 @@ LIST_LIMIT=10000
 MAX_FILESIZE=4294967296 # 4Gb Max allowed object size
 PREF_SSIZE=1073741824 # 1Gb Preffered segment size
 
-DEBUG=no # Be verbose or no.
+DEBUG=no # Be verbose or no.
 
-function init() {
-    AUTH_URL=$AUTH_URL_CLODO    
+init() {
+    AUTH_URL="$AUTH_URL_CLODO"
 }
 
-function error() {
+error() {
+    ERR="$@"
     printf 'ERROR:%s\n' "$@" >&2
 }
 
-function debug() {
-    if [ "$DEBUG" != "no" ]; then
+debug() {
+    if [[ "$DEBUG" != "no" ]]; then
         printf 'DEBUG:%s\n' "$@" >&2
     fi
 }
@@ -64,7 +65,7 @@ function debug() {
 # Args: Storage user 
 #       Storage key
 #
-function authenticate() {
+authenticate() {
     STORAGE_USER=$1
     STORAGE_KEY=$2
 
@@ -100,7 +101,7 @@ function authenticate() {
 #
 # Get Account storage usage
 #
-function get_acct_bytes_used() {
+get_acct_bytes_used() {
     curl -I -s -X HEAD -H "X-Auth-Token: $API_TOKEN" $API_URL |  grep -o -E "X-Account-Bytes-Used: [0-9]+" | cut -f2 -d" "
     return $?
 }
@@ -108,7 +109,7 @@ function get_acct_bytes_used() {
 #
 # Get Acccount container count
 #
-function get_acct_cont_count() {
+get_acct_cont_count() {
     curl -I -s -X HEAD -H "X-Auth-Token: $API_TOKEN" $API_URL |  grep -o -E "X-Account-Container-Count: [0-9]+" | cut -f2 -d" "
     return $?
 }
@@ -116,7 +117,7 @@ function get_acct_cont_count() {
 #
 # Get Account MetaData 
 #
-function get_acct_meta() {
+get_acct_meta() {
     curl -I -s -X HEAD -H "X-Auth-Token: $API_TOKEN" $API_URL |  grep "X-"
     return $?
 }
@@ -125,9 +126,9 @@ function get_acct_meta() {
 # List account containers
 # Args: Output format // json|xml 
 #
-function get_cont_list() {
+get_cont_list() {
     local suffix=""
-    if [ "$1" == "json" -o "$1" == "xml" ]; then
+    if [[ "$1" == "json" || "$1" == "xml" ]]; then
         suffix="?format=$1"
     fi
     curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}${suffix}
@@ -138,13 +139,13 @@ function get_cont_list() {
 # Get Container MetaData 
 # Args: Container
 #
-function get_cont_meta() {
+get_cont_meta() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
         return 3
     fi
-
+   
     curl -I -s -X HEAD -H "X-Auth-Token: $API_TOKEN" $API_URL/"$cont" |  grep "X-"
     return $?
 }
@@ -153,7 +154,7 @@ function get_cont_meta() {
 # Get container's object count
 # Args: Container
 #
-function get_obj_count() {
+get_obj_count() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
@@ -167,8 +168,9 @@ function get_obj_count() {
 # List container objects
 # Args: Container
 #       Output format // json|xml 
+#       Search Prefix
 #
-function get_obj_list() {
+get_obj_list() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
@@ -176,20 +178,23 @@ function get_obj_list() {
     fi
     
     local suffix=""
-    if [ "$2" == "json" -o "$2" == "xml" ]; then
+    if [[ "$2" == "json" || "$2" == "xml" ]]; then
         suffix="?format=$2"
     fi
-    curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/"$cont"${suffix}
+
+    local prefix="$3" 
+
+    curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/"$cont"/${prefix}${suffix}
     return $?
 }
 
 #
-# List all container's object and output to file
+# List all container's objects and output to file
 # Args: Container
 #       Search Prefix
 #       Output file
 #
-function long_obj_list_2file() {
+obj_list_long_2file() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
@@ -219,15 +224,46 @@ function long_obj_list_2file() {
         if [ "$lcnt" -lt "$limit" ]; then
             limit=0
         fi
-        echo "$list" >> "$file"
+        echo -ne "$list" >> "$file"
     done
+}
+
+#
+# List all container's objects
+# Args: Container
+#       Search Prefix
+#
+get_obj_list_long() {
+    local cont="$1"
+    if [ -z "$cont" ]; then
+        error "Container name is empty!"
+        return 3
+    fi
+
+    local prefix="$2" 
+
+    local limit=$LIST_LIMIT
+    local marker=""
+
+    while [ "$limit" -gt 0 ]
+    do
+        local list=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/$cont/${prefix}\?limit=${limit}\&marker=${marker}`
+        local lcnt=`echo "$list" | wc -l`
+        marker=`echo "$list" |  tail -n1`
+        if [ "$lcnt" -lt "$limit" ]; then
+            limit=0
+        fi
+        TLIST="$TLIST
+$list"
+    done
+    echo "$TLIST" | sed '1d'
 }
 
 #
 # Create container
 # Args: Container
 #
-function create_cont() {
+create_cont() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
@@ -254,7 +290,7 @@ function create_cont() {
 # Delete containe
 # Args: Container
 #
-function delete_cont() {
+delete_cont() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
@@ -283,7 +319,7 @@ function delete_cont() {
 #       Object name
 #       Input file
 #
-function put_obj() {
+put_obj() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
@@ -330,7 +366,7 @@ function put_obj() {
 #       Object name
 #       PIN
 #
-function put_obj_manifest() {
+put_obj_manifest() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
@@ -379,7 +415,7 @@ function put_obj_manifest() {
 #       Start offset (bytes)
 #       Segment size (bytes)
 #
-function put_obj_segment() {
+put_obj_segment() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
@@ -448,7 +484,7 @@ function put_obj_segment() {
 #       Input file
 #       Segment size
 #
-function put_obj_large() {
+put_obj_large() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"
@@ -522,7 +558,7 @@ function put_obj_large() {
 # Args: Source Object name
 #       Destination Object name
 #
-function copy_obj() {
+copy_obj() {
     local src="$1"
     if [ -z "$src" ]; then
         error "Source object name is empty!"
@@ -559,7 +595,7 @@ function copy_obj() {
 # Delete object
 # Args: Full Object name (container + object)
 #
-function delete_obj() {
+delete_obj() {
     local obj="$1"
     if [ -z "$obj" ]; then
         error "Object name is empty!"
@@ -587,7 +623,7 @@ function delete_obj() {
 # Args: Container
 #       Object name
 #
-function create_dir() {
+create_dir() {
     local cont="$1"
     if [ -z "$cont" ]; then
         error "Container name is empty!"

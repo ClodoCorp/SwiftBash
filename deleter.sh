@@ -15,7 +15,7 @@ fi
 CNT="$1"
 MSK="$2"
 
-if [ -z "$MSK" -o -z "$CNT" ]; then
+if [[ -z "$MSK" || -z "$CNT" ]]; then
     echo "Usage: $0 <container> <mask> [-d]"
     exit 1
 fi
@@ -37,14 +37,14 @@ fi
 debug "Using temporary file $tmpfile"
 
 echo -ne "Getting container filelist "
-long_obj_list_2file $CNT "" "$tmpfile"
+obj_list_long_2file "$CNT" "" "$tmpfile"
 echo -ne "done\n"
 
-for objct in `grep -e "^${MSK}" $tmpfile`
+for objct in `grep -e "${MSK}" $tmpfile`
 do
     echo -ne "delete ${CNT}/${objct} "
     
-    if [ "$3" == "-d" ]; then
+    if [[ "$3" == "-d" ]]; then
         echo -ne " TEST\n"
         continue
     fi
@@ -54,7 +54,6 @@ do
     else
         echo -ne "FAIL\n"
     fi
-
 done
     
 rm -f $tmpfile

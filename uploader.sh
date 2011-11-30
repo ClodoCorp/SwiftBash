@@ -15,7 +15,7 @@ fi
 DIR="$1"
 CNT="$2"
 
-if [ -z "$DIR" -o -z "$CNT" ]; then
+if [[ -z "$DIR" || -z "$CNT" ]]; then
     echo "Usage: $0 <local dir> <remote cont>"
     exit 1
 fi
