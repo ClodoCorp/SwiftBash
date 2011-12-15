@@ -14,10 +14,8 @@ SBFL_VERSION="0.0.4"
 # - Reauth cycle with wrong token may never end
 # - 409 / Conflict
 # * Meta-data operations should be implemented
-# * Add Debug output if $DEBUG is 'yes'
 # * Move auth check to common function
 # * Add 500 errors processing
-# * Write smoke tests =)
 #
 ################################################################################
 
@@ -526,6 +524,9 @@ put_obj_large() {
     fi
 
     local pin=`mktemp -qud -p "" -t "XXXXXX"`
+    if [ -z "$pin" ]; then
+        pin=`dd if=/dev/random count=1 2>/dev/null | md5sum | cut -c -6`
+    fi
 
     local fparts=`echo "$fsize / $ssize" | bc`
     local lssize=`echo "$fsize % $ssize" | bc`
