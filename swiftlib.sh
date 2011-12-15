@@ -259,7 +259,7 @@ create_cont() {
         error "Container name is empty!"
         return 2
     fi
-    RESP=$(curl -v -X PUT -D - -H "Content-Length: 0" -H "X-Auth-Token: $API_TOKEN" "${API_URL}/$cont" 2>&1)
+    RESP=$(curl -# -v -X PUT -D - -H "Content-Length: 0" -H "X-Auth-Token: $API_TOKEN" "${API_URL}/$cont" 2>&1)
     debug "$RESP"
 
     if echo "$RESP" | grep -E "< HTTP/1.. 204|< HTTP/1.. 201|< HTTP/1.. 202" > /dev/null ; then
@@ -286,7 +286,7 @@ delete_cont() {
         error "Container name is empty!"
         return
     fi
-    RESP=$(curl -v -I -X DELETE -D - -H "X-Auth-Token: $API_TOKEN" "${API_URL}/$cont" 2>&1)
+    RESP=$(curl -# -v -I -X DELETE -D - -H "X-Auth-Token: $API_TOKEN" "${API_URL}/$cont" 2>&1)
     debug "$RESP"
 
     if echo "$RESP" | grep -E "< HTTP/1.. 204|< HTTP/1.. 201|< HTTP/1.. 202" > /dev/null ; then
@@ -333,7 +333,7 @@ put_obj() {
         return 3
     fi
     
-    RESP=$(curl -I -v -X PUT -T "$file" -H "X-Storage-Token: $API_TOKEN" "${API_URL}/${cont}/${obj}" 2>&1) 
+    RESP=$(curl -# -I -v -X PUT -T "$file" -H "X-Storage-Token: $API_TOKEN" "${API_URL}/${cont}/${obj}" 2>&1) 
     debug "$RESP"
 
     if echo "$RESP" | grep -E "< HTTP/1.. 204|< HTTP/1.. 201|< HTTP/1.. 202" > /dev/null ; then
@@ -375,7 +375,7 @@ put_obj_manifest() {
         return 3
     fi
 
-    RESP=$(curl -I -v -X PUT -H "Content-Length: 0" \
+    RESP=$(curl -# -I -v -X PUT -H "Content-Length: 0" \
         -H "X-Object-Meta-PIN: $pin" \
         -H "X-Object-Manifest: $cont/$obj" \
         -H "X-Storage-Token: $API_TOKEN" "${API_URL}/${cont}/${obj}" 2>&1) 
@@ -449,7 +449,7 @@ put_obj_segment() {
     fi
     local bsize=`echo $ssize/512 |bc`
 
-    RESP=$(dd if="$file" bs=512 count=$bsize skip=$bskip | curl -I -v -X PUT -T "-" -H "X-Storage-Token: $API_TOKEN" -H "X-Object-Meta-PIN: $pin" "${API_URL}/${cont}/${obj}" 2>&1)
+    RESP=$(dd if="$file" bs=512 count=$bsize skip=$bskip | curl -# -I -v -X PUT -T "-" -H "X-Storage-Token: $API_TOKEN" -H "X-Object-Meta-PIN: $pin" "${API_URL}/${cont}/${obj}" 2>&1)
 
     debug "$RESP"
 
@@ -561,7 +561,7 @@ copy_obj() {
         return 3
     fi
 
-    RESP=$(curl -v -X PUT -H "X-Storage-Token: $API_TOKEN" 
+    RESP=$(curl -# -v -X PUT -H "X-Storage-Token: $API_TOKEN" 
         -H "X-Copy-From: $src" \
         -H "Content-Length: 0" \
         "${API_URL}/${dest}" 2>&1) 
@@ -591,7 +591,7 @@ delete_obj() {
         error "Object name is empty!"
         return
     fi
-    RESP=$(curl -v -I -X DELETE -D - -H "X-Auth-Token: $API_TOKEN" "${API_URL}/$obj" 2>&1)
+    RESP=$(curl -# -v -I -X DELETE -D - -H "X-Auth-Token: $API_TOKEN" "${API_URL}/$obj" 2>&1)
     debug "$RESP"
 
     if echo "$RESP" | grep -E "< HTTP/1.. 204|< HTTP/1.. 201|< HTTP/1.. 202" > /dev/null ; then
@@ -625,7 +625,7 @@ create_dir() {
         error "Object name is empty!"
         return 3
     fi
-    RESP=$(curl -f -X PUT -v -H "X-Storage-Token: $API_TOKEN" \
+    RESP=$(curl -# -f -X PUT -v -H "X-Storage-Token: $API_TOKEN" \
         -H "Content-Type: application/directory" \
         -H "Content-Length: 0" "$API_URL/${cont}/${obj}" 2>&1)
     debug "$RESP"
