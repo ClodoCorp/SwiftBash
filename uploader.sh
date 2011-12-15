@@ -32,7 +32,8 @@ else
 fi
 
 echo "Creating directories from $DIR..."
-for dir in `find $DIR -type d | sed "s%$DIR%%" | sed "s%^/%%"`
+dirlist=`find $DIR -type d | sed "s%$DIR%%" | sed "s%^/%%"`
+echo "$dirlist" | while read dir 
 do
     echo -ne "$CNT/$dir ... "
     if create_dir "$CNT" "$dir"; then
@@ -43,7 +44,8 @@ do
 done
 
 echo "Uploading files..."
-for file in `find $DIR -type f | sed "s%$DIR/%%"`
+flist=`find $DIR -type f | sed "s%$DIR/%%"`
+echo "$flist" | while read file 
 do
     echo -ne "$CNT/$file ... "
     if put_obj "$CNT" "$file" "$DIR/$file"; then

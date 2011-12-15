@@ -40,7 +40,8 @@ echo -ne "Getting container filelist "
 obj_list_long_2file "$CNT" "" "$tmpfile"
 echo -ne "done\n"
 
-for objct in `grep -e "${MSK}" $tmpfile`
+objlist=`grep -e "${MSK}" $tmpfile`
+echo "$objlist" | while read objct 
 do
     echo -ne "delete ${CNT}/${objct} "
     
