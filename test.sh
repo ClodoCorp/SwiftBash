@@ -44,8 +44,12 @@ fi
 obj_count=$(get_obj_count $CONT)
 OBJLIST=$(get_obj_list $CONT)
 OBJLISTL=$(get_obj_list_long $CONT)
-obj_num=$(echo -ne "$OBJLIST" | wc -l)
-obj_numl=$(echo -ne "$OBJLISTL" | wc -l)
+obj_num=$(echo -ne "$OBJLIST" | grep -c -v "^$")
+obj_numl=$(echo -ne "$OBJLISTL" | grep -c -v "^$")
+
+debug "obj_num: $obj_num obj_count: $obj_count"
+debug "L: $OBJLIST"
+debug "LL: $OBJLISTL"
 
 if [[ "$obj_num" -eq "$obj_count" || "$obj_num" -eq "$LIST_LIMIT" ]]; then
     echo "+ CONT_obj_list Passed"
@@ -53,6 +57,7 @@ else
     echo "+ CONT_obj_list Failed"
 fi
 
+debug "obj_numl: $obj_numl obj_count: $obj_count"
 if [ "$obj_numl" -eq "$obj_count" ]; then
     echo "+ CONT_obj_list_long Passed"
 else
@@ -61,7 +66,7 @@ fi
 
 tmpfile=`mktemp`
 obj_list_long_2file "$CONT" "" "$tmpfile"
-obj_numf=$(wc -l $tmpfile | cut -f1 -d" ")
+obj_numf=$(grep -c -v "^$" $tmpfile)
 
 if [ "$obj_numf" -eq "$obj_count" ]; then
     echo "+ CONT_obj_list_long_file Passed"
@@ -70,7 +75,11 @@ else
 fi
 rm "$tmpfile"
 
-UCONT="testAAA"
+UCONT=`mktemp -qud -p "" -t "XXXXXX"`
+if [ -z "$UCONT" ]; then
+    UCONT=`dd if=/dev/random count=1 2>/dev/null | md5sum | cut -c -6`
+fi
+
 if create_cont "$UCONT" ; then
     echo "+ CONT_create Passed"
 else
