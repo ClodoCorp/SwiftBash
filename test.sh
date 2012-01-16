@@ -47,17 +47,12 @@ OBJLISTL=$(get_obj_list_long $CONT)
 obj_num=$(echo -ne "$OBJLIST" | grep -c -v "^$")
 obj_numl=$(echo -ne "$OBJLISTL" | grep -c -v "^$")
 
-debug "obj_num: $obj_num obj_count: $obj_count"
-debug "L: $OBJLIST"
-debug "LL: $OBJLISTL"
-
 if [[ "$obj_num" -eq "$obj_count" || "$obj_num" -eq "$LIST_LIMIT" ]]; then
     echo "+ CONT_obj_list Passed"
 else
     echo "+ CONT_obj_list Failed"
 fi
 
-debug "obj_numl: $obj_numl obj_count: $obj_count"
 if [ "$obj_numl" -eq "$obj_count" ]; then
     echo "+ CONT_obj_list_long Passed"
 else
