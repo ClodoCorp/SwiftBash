@@ -22,7 +22,7 @@ SBFL_VERSION="0.0.4"
 ################################################################################
 # Private functions. Don't call them from outside
 ################################################################################
-AUTH_URL_CLODO="http://testapi.clodo.ru/v1"
+AUTH_URL_CLODO="http://api.clodo.ru/v1"
 
 LIST_LIMIT=10000
 MAX_FILESIZE=4294967296 # 4Gb Max allowed object size
@@ -194,7 +194,7 @@ obj_list_long_2file() {
         return 3
     fi
     
-    local file="$3"
+    local file="$2"
     if [ -z "$file" ]; then
         error "File name is empty!"
         return 3
