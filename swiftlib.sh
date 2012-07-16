@@ -185,43 +185,7 @@ get_obj_list() {
 #
 # List all container's objects and output to file
 # Args: Container
-#       Output file
-#
-obj_list_long_2file() {
-    local cont="$1"
-    if [ -z "$cont" ]; then
-        error "Container name is empty!"
-        return 3
-    fi
-    
-    local file="$3"
-    if [ -z "$file" ]; then
-        error "File name is empty!"
-        return 3
-    fi
-
-    if [ -f "$file" ]; then
-        echo -ne "" > "$file"
-    fi
-
-    local limit=$LIST_LIMIT
-    local marker=""
-
-    while [ "$limit" -gt 0 ]
-    do
-        local list=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/"$cont"\?limit=${limit}\&marker=${marker}`
-        local lcnt=`echo "$list" | wc -l`
-        marker=`echo "$list" |  tail -n1`
-        if [ "$lcnt" -lt "$limit" ]; then
-            limit=0
-        fi
-        echo -ne "$list" >> "$file"
-    done
-}
-
-#
-# List all container's objects
-# Args: Container
+#       Output file (optional)
 #
 get_obj_list_long() {
     local cont="$1"
@@ -229,22 +193,36 @@ get_obj_list_long() {
         error "Container name is empty!"
         return 3
     fi
+    
+    local file="$2"
+
+    if [[ -n "$file" && -f "$file" ]]; then
+        echo -ne "" > "$file"
+    fi
 
     local limit=$LIST_LIMIT
     local marker=""
+    local TLIST=""
 
     while [ "$limit" -gt 0 ]
     do
         local list=`curl -s -X GET -H "X-Auth-Token: $API_TOKEN" ${API_URL}/"$cont"\?limit=${limit}\&marker=${marker}`
         local lcnt=`echo "$list" | wc -l`
-        marker=`echo "$list" |  tail -n1`
+        marker=`echo "$list" | tail -n1`
         if [ "$lcnt" -lt "$limit" ]; then
             limit=0
         fi
-        TLIST="$TLIST
+        if [ -n "$file" ]; then
+            echo -ne "$list" >> "$file"
+        else
+            TLIST="$TLIST
 $list"
+        fi
     done
-    echo "$TLIST" | sed '1d'
+    
+    if [ -z "$file" ]; then
+        echo "$TLIST" | sed '1d'
+    fi
 }
 
 #

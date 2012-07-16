@@ -17,6 +17,7 @@ MSK="$2"
 
 if [[ -z "$MSK" || -z "$CNT" ]]; then
     echo "Usage: $0 <container> <mask> [-d]"
+    echo "Example: $0 public \".*\" -d"
     exit 1
 fi
 
@@ -37,7 +38,7 @@ fi
 debug "Using temporary file $tmpfile"
 
 echo -ne "Getting container filelist "
-obj_list_long_2file "$CNT" "" "$tmpfile"
+get_obj_list_long "$CNT" "$tmpfile"
 echo -ne "done\n"
 
 objlist=`grep -e "${MSK}" $tmpfile`

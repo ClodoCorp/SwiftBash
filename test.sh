@@ -60,13 +60,13 @@ else
 fi
 
 tmpfile=`mktemp`
-obj_list_long_2file "$CONT" "" "$tmpfile"
+get_obj_list_long "$CONT" "$tmpfile"
 obj_numf=$(grep -c -v "^$" $tmpfile)
 
 if [ "$obj_numf" -eq "$obj_count" ]; then
-    echo "+ CONT_obj_list_long_file Passed"
+    echo "+ CONT_obj_list_long 2 file Passed"
 else
-    echo "+ CONT_obj_list_long_file Failed"
+    echo "+ CONT_obj_list_long 2 file Failed"
 fi
 rm "$tmpfile"
 
