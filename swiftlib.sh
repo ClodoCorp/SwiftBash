@@ -425,7 +425,7 @@ put_obj_segment() {
     fi
     local bsize=`echo $ssize/512 |bc`
 
-    RESP=$(dd if="$file" bs=512 count=$bsize skip=$bskip | curl -# -I -v -X PUT -T "-" -H "X-Storage-Token: $API_TOKEN" -H "X-Object-Meta-PIN: $pin" "${API_URL}/${cont}/${obj}" 2>&1)
+    RESP=$(dd if="$file" bs=512 count=$bsize skip=$bskip 2>/dev/null | curl -# -I -v -X PUT -T "-" -H "X-Storage-Token: $API_TOKEN" -H "X-Object-Meta-PIN: $pin" "${API_URL}/${cont}/${obj}" 2>&1)
 
     debug "$RESP"
 
@@ -620,6 +620,22 @@ create_dir() {
         return 2
     else
         return 1
+    fi
+}
+
+#
+# Check if container exists
+# Args: Container
+#
+
+check_container_exists() {
+    local cont="$1"
+    if [ -z "$cont" ]; then
+        error "Container name is empty!"
+        return 3
+    fi
+    if ! get_cont_list | grep -e "^${cont}\$" > /dev/null ; then
+        return 2
     fi
 }
 
