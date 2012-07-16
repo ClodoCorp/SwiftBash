@@ -194,7 +194,7 @@ obj_list_long_2file() {
         return 3
     fi
     
-    local file="$2"
+    local file="$3"
     if [ -z "$file" ]; then
         error "File name is empty!"
         return 3
