@@ -26,7 +26,7 @@ AUTH_URL_CLODO="http://api.clodo.ru/v1"
 
 LIST_LIMIT=10000
 MAX_FILESIZE=4294967296 # 4Gb Max allowed object size
-PREF_SSIZE=1073741824 # 1Gb Preffered segment size
+PREF_SSIZE=104857600 # 100Mb Preffered segment size
 
 DEBUG=no # Be verbose or no.
 
