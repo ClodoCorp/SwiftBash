@@ -54,7 +54,13 @@ do
     if delete_obj "${CNT}/${objct}" ; then
         echo -ne "OK\n"
     else
-        echo -ne "FAIL\n"
+        echo -ne "Retry in 10s\n"
+        sleep 10
+        if delete_obj "${CNT}/${objct}" ; then
+            echo -ne "OK\n"
+        else
+            echo -ne "FAIL\n"
+        fi
     fi
 done
     

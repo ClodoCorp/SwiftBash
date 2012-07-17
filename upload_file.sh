@@ -38,7 +38,7 @@ else
     echo -ne "failed\n"
 fi
 
-if  ! check_container_exists "$CNT" ; then
+if  ! check_container_exists "$CNT"; then
     error "Container $CNT does not exist"
     exit 2
 fi
@@ -46,18 +46,30 @@ fi
 LSZ=`stat -c %s "$LFN"`
 echo -ne "Upload ${CNT}/${RFN} ... "
 
-if [ $(( $LSZ / $PREF_SSIZE)) -gt 2 ];then
+if [ $(( $LSZ / $PREF_SSIZE)) -gt 2 ]; then
     debug "Need segmented upload."
     if put_obj_large  "$CNT" "$RFN" "$LFN" "$PREF_SSIZE"; then
         echo -ne "OK\n"
     else
-        echo -ne "FAIL\n"
+        echo -ne "Retry in 10s\n"
+        sleep 10
+        if put_obj_large  "$CNT" "$RFN" "$LFN" "$PREF_SSIZE"; then
+            echo -ne "OK\n"
+        else
+            echo -ne "FAIL\n"
+        fi
     fi
 else
     if put_obj "$CNT" "$RFN" "$LFN"; then
         echo -ne "OK\n"
     else
-        echo -ne "FAIL\n"
+        echo -ne "Retry in 10s\n"
+        sleep 10
+        if put_obj "$CNT" "$RFN" "$LFN"; then
+            echo -ne "OK\n"
+        else
+            echo -ne "FAIL\n"
+        fi
     fi
 fi
 
