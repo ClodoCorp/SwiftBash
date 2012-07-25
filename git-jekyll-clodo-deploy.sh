@@ -8,7 +8,6 @@
 # uploading them to CloudStorage.
 ################################################################################
 
-
 DEBUG=no
 
 # CloudStorage access credentials 
@@ -26,13 +25,34 @@ DBRANCH="master"
 # updel  - Upload everything and then delete unnecessary objects form CS.
 DMETH="updel"
 
+# Hook type
+# update  - get refs from args
+# recieve - get refs from stdin
+HOOKTYPE="recieve"
+
 ################################################################################
 # Don't edit anything below this line until you know what you are doing
 ################################################################################
 
-if [[ "$*" =~ "refs/heads/${DBRANCH}" ]]; then
-    echo "We have update for $DBRANCH. Need to regenerate and deploy."
+if [ "$HOOKTYPE" == "update" ]; then
+    if [[ "$*" =~ "refs/heads/${DBRANCH}" ]]; then
+        echo "We have update for $DBRANCH. Need to regenerate and deploy."
+    else
+        exit 0
+    fi
+elif [ "$HOOKTYPE" == "recieve" ]; then
+    while read oldrev newrev ref
+    do
+        REFZ+=" $ref"
+    done
+
+    if [[ "$REFZ" =~ "refs/heads/${DBRANCH}" ]]; then
+        echo "We have update for $DBRANCH. Need to regenerate and deploy."
+    else
+        exit 0
+    fi
 else
+    echo "Unknown hook type ${HOOKTYPE}."
     exit 0
 fi
 
