@@ -215,13 +215,13 @@ get_obj_list_long() {
         if [ -n "$file" ]; then
             echo -ne "$list" >> "$file"
         else
-            TLIST="$TLIST
-$list"
+            TLIST+="$list\n"
         fi
     done
     
     if [ -z "$file" ]; then
-        echo "$TLIST" | sed '1d'
+        TLIST="${TLIST%\\n}"
+        echo -e "$TLIST"
     fi
 }
 
