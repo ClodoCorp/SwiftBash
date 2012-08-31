@@ -540,7 +540,7 @@ copy_obj() {
         return 3
     fi
 
-    RESP=$(curl -# -v -X PUT -H "X-Storage-Token: $API_TOKEN" 
+    RESP=$(curl -# -v -X PUT -H "X-Storage-Token: $API_TOKEN" \
         -H "X-Copy-From: $src" \
         -H "Content-Length: 0" \
         "${API_URL}/${dest}" 2>&1) 
