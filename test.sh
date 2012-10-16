@@ -100,26 +100,6 @@ else
     echo "+ OBJ_get Failed"
 fi
 
-# copy object
-if copy_obj "${UCONT}/${OBJ}" "${UCONT}/${OBJ}.copy"; then
-    OBJ_CCONT=`curl -s -H "X-Storage-Token: $API_TOKEN" $API_URL/"${UCONT}"/"${OBJ}.copy"`
-
-    if [ "$OBJ_CONT" == "$OBJ_CCONT" ]; then
-        echo "+ OBJ_copy Passed"
-    else
-        echo "+ OBJ_copy Failed"
-    fi
-else
-    echo "+ OBJ_copy Failed"
-fi
-
-
-if delete_obj "${UCONT}"/"${OBJ}"; then
-    echo "+ OBJ_delete Passed"
-else
-    echo "+ OBJ_delete Failed"
-fi
-
 if copy_obj "${UCONT}/${OBJ}" "${UCONT}/${OBJ}.copy"; then
     OBJ_CCONT=`curl -s -H "X-Storage-Token: $API_TOKEN" $API_URL/"${UCONT}"/"${OBJ}.copy"`
 
@@ -136,6 +116,12 @@ if delete_obj "${UCONT}"/"${OBJ}"; then
     echo "+ OBJ_delete Passed"
 else
     echo "+ OBJ_delete Failed"
+fi
+
+if delete_obj "${UCONT}"/"${OBJ}.copy"; then
+    echo "+ OBJ_delete.copy Passed"
+else
+    echo "+ OBJ_delete.copy Failed"
 fi
 
 if delete_cont "$UCONT" ; then
