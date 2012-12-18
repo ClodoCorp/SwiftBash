@@ -253,7 +253,7 @@ create_cont() {
 }
 
 #
-# Delete containe
+# Delete container
 # Args: Container
 #
 delete_cont() {
@@ -278,6 +278,50 @@ delete_cont() {
         return 1
     fi
 }
+
+#
+# Get object using Auth-Token
+# Args: Container
+#       Object name
+#       Output file
+#
+get_obj() {
+    local cont="$1"
+    if [ -z "$cont" ]; then
+        error "Container name is empty!"
+        return 3
+    fi
+    
+    local obj="$2"
+    if [ -z "$obj" ]; then
+        error "Object name is empty!"
+        return 3
+    fi
+
+    local file="$3"
+    if [ -z "$file" ]; then
+        error "File name is empty!"
+        return 3
+    fi
+
+    RESP=$(curl -v -X GET -H  "X-Auth-Token: $API_TOKEN" \
+        "${API_URL}/${cont}/${obj}" -o ${file} 2>&1) 
+    debug "$RESP"
+
+    if echo "$RESP" | grep -E "< HTTP/1.. 200|< HTTP/1.. 204|< HTTP/1.. 201|< HTTP/1.. 202" > /dev/null ; then
+        return 0
+    elif echo "$RESP" | grep -E "< HTTP/1.. 401" > /dev/null ; then
+        authenticate $STORAGE_USER $STORAGE_KEY
+        get_obj "$cont" "$obj" "$file"
+        return $?
+    elif echo "$RESP" | grep -E "< HTTP/1.. 404" > /dev/null ; then
+        error "Object not found!"
+        return 2
+    else
+        return 1
+    fi
+}
+
 
 #
 # Create or update object
@@ -325,6 +369,8 @@ put_obj() {
         return 1
     fi
 }
+
+
 
 #
 # Create or update object's Manifest

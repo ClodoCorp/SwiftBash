@@ -93,12 +93,16 @@ else
 fi
 rm $tmpfile
 
-OBJ_CONT=`curl -s -H "X-Storage-Token: $API_TOKEN" $API_URL/"${UCONT}"/"${OBJ}"`
+tmpfile=`mktemp`
+get_obj "${UCONT}" "${OBJ}" "${tmpfile}"
+
+OBJ_CONT=`cat ${tmpfile}`
 if [ "$OBJ_CONT" == "$OBJ_TCONT" ]; then
     echo "+ OBJ_get Passed"
 else
     echo "+ OBJ_get Failed"
 fi
+rm $tmpfile
 
 if copy_obj "${UCONT}/${OBJ}" "${UCONT}/${OBJ}.copy"; then
     OBJ_CCONT=`curl -s -H "X-Storage-Token: $API_TOKEN" $API_URL/"${UCONT}"/"${OBJ}.copy"`
